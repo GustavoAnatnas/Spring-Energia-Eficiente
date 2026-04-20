@@ -22,7 +22,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Build com Maven
-        run: ./mvnw clean install -DskipTests=false
+        run: ./mvnw clean install -DskipTests
 
       - name: Rodar testes
         run: ./mvnw test
