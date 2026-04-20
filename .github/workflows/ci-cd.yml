@@ -42,15 +42,15 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
 
-  steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
+    steps:
+        - name: Checkout do código
+          uses: actions/checkout@v3
 
-      - name: Subir ambiente com Docker Compose
-        run: docker compose up -d
+        - name: Subir ambiente com Docker Compose
+          run: docker compose up -d
 
-      - name: Verificar containers
-        run: docker ps
+        - name: Verificar containers
+          run: docker ps
 
   production:
     needs: staging
