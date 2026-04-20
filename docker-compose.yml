@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: oracle-db
+    environment:
+      ORACLE_PASSWORD: 170101
+      ORACLE_USER: RM560522
+      ORACLE_DATABASE: eficiente
+    ports:
+      - "1521:1521"
+    healthcheck:
+      test: ["CMD", "sqlplus", "-L", "SYSTEM/170101@//localhost:1521/eficiente", "exit"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  eficiente-api:
+    build: .
+    container_name: eficiente-api
+    environment:
+      SPRING_DATASOURCE_USERNAME: SYSTEM
+      SPRING_DATASOURCE_PASSWORD: 170101
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//oracle-db:1521/EFICIENTE
+      SPRING_FLYWAY_ENABLED: false
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: "UmSegredoMuitoLongoeComMaisdeTrintaedoisCaracteresAquiParaAssinarOJWT"
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8080:8080"
+    depends_on:
+      oracle-db:
+        condition: service_healthy
