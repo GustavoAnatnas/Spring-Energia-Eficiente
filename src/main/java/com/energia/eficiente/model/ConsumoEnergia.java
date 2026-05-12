@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ public class ConsumoEnergia {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String empresa;
+    @Positive(message = "O consumo deve ser um valor positivo")
     private Double consumoKw;
     private LocalDateTime dataRegistro;
     private Boolean alertGerado;

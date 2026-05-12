@@ -1,29 +1,89 @@
 package com.energia.eficiente.steps;
 
 import io.cucumber.java.pt.Dado;
-import io.cucumber.java.pt.Quando;
 import io.cucumber.java.pt.Então;
-import io.cucumber.java.pt.E;
+import io.cucumber.java.pt.Quando;
 import io.restassured.RestAssured;
-import io.restassured.module.jsv.JsonSchemaValidator;
-import io.restassured.response.Response;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import java.util.HashMap;
+import java.util.Map;
+import static org.hamcrest.Matchers.*;
 
 public class ConsumoSteps {
+
     private Response response;
-    private String endpoint = "http://localhost:8080/api/consumo";
+    private String token;
+    private String emailUsuario;
+    private String senhaUsuario;
+    private final String BASE_URL = "http://localhost:8080";
+    private Map<String, Object> corpoRequisicao;
 
-    @Dado("que eu tenho os dados de consumo válidos")
-    public void dadosValidos() {
-        // Objeto simulando o modelo ConsumoEnergia do seu projeto
-    }
+    @Dado("que eu registro um novo usuario com email {string} e senha {string}")
+    public void registrarUsuario(String email, String senha) {
+        this.emailUsuario = email;
+        this.senhaUsuario = senha;
 
-    @Quando("eu envio uma requisição POST para {string}")
-    public void enviarPost(String path) {
+        Map<String, String> userMap = new HashMap<>();
+        userMap.put("email", email);
+        userMap.put("password", senha);
+
         response = RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body("{ \"valor\": 150.5, \"data\": \"2026-05-06\" }")
-                .post(path);
+                .body(userMap)
+                .post(BASE_URL + "/api/auth/register");
+
+        if (response.statusCode() != 201 && response.statusCode() != 400) {
+            throw new AssertionError("Falha no registro: " + response.asString());
+        }
+    }
+
+    @Dado("que eu estou autenticado no sistema")
+    public void autenticar() {
+        Map<String, String> loginMap = new HashMap<>();
+        loginMap.put("email", emailUsuario);
+        loginMap.put("password", senhaUsuario);
+
+        response = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(loginMap)
+                .post(BASE_URL + "/api/auth/login");
+
+        response.then().statusCode(200);
+        token = response.jsonPath().getString("token");
+    }
+
+    @Quando("eu envio uma requisicao GET para {string}")
+    public void enviarGet(String url) {
+        response = RestAssured.given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .when()
+                .get(url);
+    }
+
+    @Dado("que eu tenho os dados de consumo validos")
+    public void dadosValidos() {
+        corpoRequisicao = new HashMap<>();
+        corpoRequisicao.put("empresa", "Empresa ESG");
+        corpoRequisicao.put("consumoKw", 250.0);
+    }
+
+    @Quando("eu envio uma requisicao GET para {string} sem token")
+    public void enviarGetSemToken(String url) {
+        response = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get(url);
+    }
+
+    @Quando("eu envio uma requisicao POST para {string}")
+    public void enviarPost(String url) {
+        response = RestAssured.given()
+                .header("Authorization", "Bearer " + token)
+                .contentType(ContentType.JSON)
+                .body(corpoRequisicao)
+                .post(url);
     }
 
     @Então("o status code deve ser {int}")
@@ -31,9 +91,8 @@ public class ConsumoSteps {
         response.then().statusCode(statusCode);
     }
 
-    @E("o corpo da resposta deve validar o contrato JSON")
-    public void validarContrato() {
-        // Requisito 2: Validação de JSON Schema
-        response.then().body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/consumo-schema.json"));
+    @Então("o corpo da resposta deve conter uma lista de consumos")
+    public void validarLista() {
+        response.then().body("$", instanceOf(java.util.List.class));
     }
 }

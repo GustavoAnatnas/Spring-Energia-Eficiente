@@ -28,6 +28,7 @@ public class ConsumoEnergiaService {
 
     public ConsumoEnergia salvar(ConsumoEnergia c) {
         c.setDataRegistro(LocalDateTime.now());
+        if (c.getAlertGerado() == null) c.setAlertGerado(false);
 
         if (c.getConsumoKw() != null && c.getConsumoKw() > 1000) {
             c.setAlertGerado(true);

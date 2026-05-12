@@ -1,9 +1,10 @@
 package com.energia.eficiente.controller;
 
-import com.energia.eficiente.model.Alerta;
 import com.energia.eficiente.model.ConsumoEnergia;
 import com.energia.eficiente.service.ConsumoEnergiaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/consumo-energia")
 public class ConsumoEnergiaController {
+
     @Autowired
     private ConsumoEnergiaService service;
 
@@ -20,25 +22,25 @@ public class ConsumoEnergiaController {
     }
 
     @GetMapping("/{id}")
-    public ConsumoEnergia buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public ResponseEntity<ConsumoEnergia> buscarPorId(@PathVariable Long id) {
+        ConsumoEnergia consumo = service.buscarPorId(id);
+        return ResponseEntity.ok(consumo);
     }
 
-
     @PostMapping
-    public ConsumoEnergia salvar(@RequestBody ConsumoEnergia c) {
-        return service.salvar(c);
+    public ResponseEntity<ConsumoEnergia> salvar(@Valid @RequestBody ConsumoEnergia c) {
+        return ResponseEntity.ok(service.salvar(c));
     }
 
     @PutMapping("/{id}")
-    public ConsumoEnergia atualizar(@PathVariable Long id, @RequestBody ConsumoEnergia consumoEnergia){
+    public ResponseEntity<ConsumoEnergia> atualizar(@PathVariable Long id, @Valid @RequestBody ConsumoEnergia consumoEnergia){
         consumoEnergia.setId(id);
-        return service.atualizar(consumoEnergia);
+        return ResponseEntity.ok(service.atualizar(consumoEnergia));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
-
