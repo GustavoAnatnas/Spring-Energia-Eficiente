@@ -60,6 +60,16 @@ Responsável por empacotar a aplicação.
 **Objetivo:**
 Criar um artefato padronizado e portátil para execução em qualquer ambiente.
 
+**Para subir todos os serviços e reconstruir a imagem da API**
+```text
+docker-compose up -d --build
+```
+
+**Para verificar se os containers estão rodando**
+```text
+docker ps
+```
+
 ---
 
 ### 3. 🌐 Staging (`staging`)
@@ -120,18 +130,21 @@ Utilizado para garantir consistência entre ambientes e facilitar o deploy.
 
 ---
 
-## 📷 Evidências
+## ⚙️ Testes
 
-O pipeline pode ser acompanhado diretamente na aba **Actions** do repositório, onde é possível visualizar:
-
-* Execução de cada etapa
-* Logs detalhados
-* Tempo de execução
-* Status (sucesso ou falha)
-
-<img width="1533" height="247" alt="image" src="https://github.com/user-attachments/assets/3084db43-0eae-4c6c-8691-c68c7baaf495" />
-
-
+Para rodar os testes:
+* Arquivo:
+```text
+Spring Energia Eficiente\src\test\java\com\energia\eficiente\CucumberTest.java
+```
+* Execute com:
+```text
+Run 'CucumberTest'
+```
+ou
+```text
+CTRL + SHIFT + F10
+```
 ---
 
 ## ✅ Resultado
